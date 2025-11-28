@@ -1,5 +1,5 @@
 -- =========================================================================
--- soluciones a los casos experiencia 2 semana 6
+-- soluciones a los casos semana 6
 -- Valeria Sifontes
 -- =========================================================================
 
@@ -12,11 +12,16 @@ SELECT
     p.id_profesional AS ID,
     INITCAP(p.appaterno) || ', ' || INITCAP(p.apmaterno) || ', ' || INITCAP(p.nombre) AS PROFESIONAL, 
     NVL(B.NRO_ASESORIA_BANCA, 0) AS "NRO ASESORIA BANCA", 
-    NVL(B.MONTO_TOTAL_BANCA, 0) AS MONTO_TOTAL_BANCA, 
-    NVL(R.NRO_ASESORIA_RETAIL, 0) AS "NRO ASESORIA RETAIL", 
-    NVL(R.MONTO_TOTAL_RETAIL, 0) AS MONTO_TOTAL_RETAIL, 
+    TO_CHAR(NVL(B.MONTO_TOTAL_BANCA, 0), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''') AS MONTO_TOTAL_BANCA,
+    NVL(R.NRO_ASESORIA_RETAIL, 0) AS "NRO ASESORIA RETAIL",
+    TO_CHAR(NVL(R.MONTO_TOTAL_RETAIL, 0), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''') AS MONTO_TOTAL_RETAIL,
     NVL(B.NRO_ASESORIA_BANCA, 0) + NVL(R.NRO_ASESORIA_RETAIL, 0) AS "TOTAL ASESORIAS",
-    NVL(B.MONTO_TOTAL_BANCA, 0) + NVL(R.MONTO_TOTAL_RETAIL, 0) AS "TOTAL HONORARIOS"
+    TO_CHAR(
+    NVL(B.MONTO_TOTAL_BANCA, 0) + NVL(R.MONTO_TOTAL_RETAIL, 0),
+    '$999G999G999',
+    'NLS_NUMERIC_CHARACTERS = '',.'''
+    ) AS "TOTAL HONORARIOS"
+
 FROM profesional p
 
 -- 1. subconsulta para encontrar ids que tienen asesorías en banca y retail
@@ -72,10 +77,10 @@ SELECT
     INITCAP(pr.nombre_profesion) AS NOMBRE_PROFESION,
     INITCAP(c.nom_comuna) AS NOM_COMUNA,
     COUNT(a.honorario) AS NRO_ASESORIAS, 
-    ROUND(SUM(a.honorario)) AS MONTO_TOTAL_HONORARIOS, 
-    ROUND(AVG(a.honorario)) AS PROMEDIO_HONORARIO,
-    ROUND(MIN(a.honorario)) AS HONORARIO_MINIMO, 
-    ROUND(MAX(a.honorario)) AS HONORARIO_MAXIMO 
+    TO_CHAR(ROUND(SUM(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS MONTO_TOTAL_HONORARIOS,
+    TO_CHAR(ROUND(AVG(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS PROMEDIO_HONORARIO,
+    TO_CHAR(ROUND(MIN(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS HONORARIO_MINIMO,
+    TO_CHAR(ROUND(MAX(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS HONORARIO_MAXIMO
 FROM profesional p
 JOIN asesoria a ON p.id_profesional = a.id_profesional
 JOIN profesion pr ON p.cod_profesion = pr.cod_profesion
@@ -100,8 +105,8 @@ SELECT * FROM REPORTE_MES;
 -- el id, sueldo actual y el total de honorarios acumulados en marzo del año pasado
 SELECT
     p.id_profesional AS ID_PROFESIONAL,
-    p.sueldo AS SUELDO_ACTUAL,
-    ROUND(SUM(a.honorario)) AS HONORARIO_ACUMULADO_MARZO_ANIO_PASADO
+    TO_CHAR(p.sueldo, '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS SUELDO_ACTUAL,
+    TO_CHAR(ROUND(SUM(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS HONORARIO_ACUMULADO_MARZO_ANIO_PASADO
 FROM profesional p
 JOIN asesoria a ON p.id_profesional = a.id_profesional
 WHERE TO_CHAR(a.fin_asesoria, 'MM/YYYY') = '03/' || (EXTRACT(YEAR FROM SYSDATE) - 1) 
@@ -145,8 +150,8 @@ COMMIT;
 -- se muestra el id, sueldo nuevo y el total de honorarios acumulados en marzo del año pasado para verificar los cambios
 SELECT
     p.id_profesional AS ID_PROFESIONAL,
-    p.sueldo AS SUELDO_NUEVO,
-    ROUND(SUM(a.honorario)) AS HONORARIO_ACUMULADO_MARZO_ANIO_PASADO
+    TO_CHAR(p.sueldo, '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS SUELDO_NUEVO,
+    TO_CHAR(ROUND(SUM(a.honorario)), '$999G999G999', 'NLS_NUMERIC_CHARACTERS = '',.''' ) AS HONORARIO_ACUMULADO_MARZO_ANIO_PASADO
 FROM profesional p
 JOIN asesoria a ON p.id_profesional = a.id_profesional
 WHERE TO_CHAR(a.fin_asesoria, 'MM/YYYY') = '03/' || (EXTRACT(YEAR FROM SYSDATE) - 1)
